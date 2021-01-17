@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "nodemcu-blink"
+		},
+		{
+			"name": "nodemcu-lcd-2x16",
+			"path": "nodemcu-lcd-2x16"
+		},
+		{
+			"name": "nodemcu-rgb-led",
+			"path": "nodemcu-rgb-led"
+		},
+		{
+			"name": "nodemcu-laser",
+			"path": "nodemcu-laser"
+		}
+	],
+	"settings": {}
+}
