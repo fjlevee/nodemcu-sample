@@ -14,6 +14,14 @@
 		{
 			"name": "nodemcu-laser",
 			"path": "nodemcu-laser"
+		},
+		{
+			"name": "nodemcu-microtimer",
+			"path": "nodemcu-microtimer"
+		},
+		{
+			"name": "nodemcu-photo-receiver",
+			"path": "nodemcu-photo-receiver"
 		}
 	],
 	"settings": {}

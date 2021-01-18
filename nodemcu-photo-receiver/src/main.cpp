@@ -1,8 +1,6 @@
 #include <Arduino.h>
-
 #include <HT_hamming_encoder.h>
 #include <HT_light_modulator.h>
-
 
 #if !defined(ESP8266)
 #error This code is designed to run on ESP8266 and ESP8266-based boards! Please check your Tools->Board setting.
@@ -15,47 +13,51 @@
 #define _TIMERINTERRUPT_LOGLEVEL_ 0
 #include <ESP8266TimerInterrupt.h>
 
-#define FREQ_HZ 25000
+volatile bool statusLed = false;
 volatile uint32_t lastMicros = 0;
-
+#define FREQ_HZ 25000
 
 // Init ESP8266 timer 0
 ESP8266Timer ITimer;
 
 
-
-
-#define LASER_LIGHT_PIN D1
-#define LASER_TRIGGER_PIN D0
-#define LASER_FIRE_PIN D8
-uint16_t laser_msg = hamming_byte_encoder('E');
-boolean laser_trigger_enabled = true;
-HT_PhotoTransmitter laser;
-
+#define PHOTORECEIVER_PIN D1
+#define LED_PIN D8
+HT_PhotoReceiver pdiode;
+int last_received_code = 0;
+long last_received_time = -1;
 
 //=======================================================================
 void ICACHE_RAM_ATTR TimerHandler()
 {
-  // transmit message, if any
-  laser.transmit();
-
+  pdiode.receive();
+  /*
+  digitalWrite(LED_PIN, statusLed); //Toggle LED Pin
+  statusLed = !statusLed;
   #if (TIMER_INTERRUPT_DEBUG > 0)
     Serial.println("Delta us = " + String(micros() - lastMicros));
     lastMicros = micros();
-  #endif
+  #endif*/
 }
 
 void setup()
 {
-
+  pinMode(LED_PIN, OUTPUT);
   Serial.begin(9600);
-  pinMode(LASER_TRIGGER_PIN, INPUT);
-  pinMode(LASER_FIRE_PIN, OUTPUT);
+  while (!Serial);
+  delay(200);
+  
+  pdiode.set_light_receive_pin(PHOTORECEIVER_PIN);
+  //pdiode.set_speed(25000); // bits/sec, must match laser bit transfer rate
+  pdiode.begin();
 
-  // put your setup code here, to run once:
-  laser.set_light_send_pin(LASER_LIGHT_PIN);
-  // must be 500+ bits/second and less than laser slew rate
-  laser.begin();
+  Serial.print(F("\nStarting TimerInterruptTest on "));
+  Serial.println(ARDUINO_BOARD);
+  //Serial.println(ESP8266_TIMER_INTERRUPT_VERSION);
+  Serial.print(F("CPU Frequency = "));
+  Serial.print(F_CPU / 1000000);
+  Serial.println(F(" MHz"));
+
 
   if (ITimer.setFrequency(FREQ_HZ, TimerHandler))
   {
@@ -64,35 +66,34 @@ void setup()
     Serial.print(FREQ_HZ);
     Serial.println(F(" Hz"));
   }
-  else
-  {
+  else{
     Serial.println(F("Can't set ITimer correctly with Frequency= "));
     Serial.print(FREQ_HZ);
     Serial.println(F(" Hz. Select another freq. or interval"));
   }
-  Serial.println(F("Laser Program started"));
-}
+  Serial.print("PHOTORECEIVER_PIN D1: ");
+  Serial.println(D1);
+  Serial.print("LED_PIN 8: ");
+  Serial.println(D8);
+  Serial.println(F("Photo Receiver Program Started."));
+} //end setup
 
 
 void loop()
 {
-  int val = digitalRead(LASER_TRIGGER_PIN); //read the value of the digital interface 3 assigned to val
-  if ((val == LOW) && (laser_trigger_enabled))
-  {
-    digitalWrite(LASER_FIRE_PIN, HIGH);
-    laser_trigger_enabled = false;
-    laser.manchester_modulate(laser_msg);
-    delay(10);
-    digitalWrite(LASER_LIGHT_PIN, HIGH);
-    delay(100);
-    digitalWrite(LASER_LIGHT_PIN, LOW);
+  
+  //print and return most recently received byte, if any, only once
+  //pdiode.printByte();
+  
+  uint8_t received_code = pdiode.getMsgCodeByte();
 
-    Serial.println("Fire\n");
-
-    digitalWrite(LASER_FIRE_PIN, LOW);
-  }
-  else if (val == HIGH)
+  if (received_code != 255)
   {
-    laser_trigger_enabled = true;
+    //Serial.print("CODE: ");
+    //Serial.println(received_code);
+    Serial.print(millis());
+    Serial.print(" - code: ");
+    Serial.println((char)received_code);
+
   }
 }
