@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #include <HT_hamming_encoder.h>
-#include <HT_light_modulator.h>
+#include <ESP8266_Light_modulator.h>
 
 
 #if !defined(ESP8266)
@@ -15,22 +15,15 @@
 #define _TIMERINTERRUPT_LOGLEVEL_ 0
 #include <ESP8266TimerInterrupt.h>
 
-#define FREQ_HZ 25000
+#define SEND_FREQUENCY_HZ 25000
 volatile uint32_t lastMicros = 0;
-
-
-// Init ESP8266 timer 0
-ESP8266Timer ITimer;
-
-
-
 
 #define LASER_LIGHT_PIN D1
 #define LASER_TRIGGER_PIN D0
 #define LASER_FIRE_PIN D8
 uint16_t laser_msg = hamming_byte_encoder('E');
 boolean laser_trigger_enabled = true;
-HT_PhotoTransmitter laser;
+LaserTransmitter laser;
 
 
 //=======================================================================
@@ -52,24 +45,8 @@ void setup()
   pinMode(LASER_TRIGGER_PIN, INPUT);
   pinMode(LASER_FIRE_PIN, OUTPUT);
 
-  // put your setup code here, to run once:
-  laser.set_light_send_pin(LASER_LIGHT_PIN);
   // must be 500+ bits/second and less than laser slew rate
-  laser.begin();
-
-  if (ITimer.setFrequency(FREQ_HZ, TimerHandler))
-  {
-    lastMicros = micros();
-    Serial.print(F("Starting ITimer OK, Frequency= "));
-    Serial.print(FREQ_HZ);
-    Serial.println(F(" Hz"));
-  }
-  else
-  {
-    Serial.println(F("Can't set ITimer correctly with Frequency= "));
-    Serial.print(FREQ_HZ);
-    Serial.println(F(" Hz. Select another freq. or interval"));
-  }
+  laser.begin(LASER_LIGHT_PIN, SEND_FREQUENCY_HZ, TimerHandler);
   Serial.println(F("Laser Program started"));
 }
 
