@@ -22,6 +22,10 @@
 		{
 			"name": "nodemcu-photo-receiver",
 			"path": "nodemcu-photo-receiver"
+		},
+		{
+			"name": "nodemcu-wifi-http-client",
+			"path": "nodemcu-wifi-http-client"
 		}
 	],
 	"settings": {}
