@@ -1,10 +1,10 @@
 #include <Arduino.h>
 #include <HT_hamming_encoder.h>
 #include <ESP8266_Light_modulator.h>
-// Reception Freque cy in 
+// Reception Frequency in Hz
 #define RECEIVE_FREQUENCY_HZ 25000
 
-#define PHOTORECEIVER_PIN D1
+#define PHOTORECEIVER_PIN D0
 LaserReceiver pdiode;
 int last_received_code = 0;
 long last_received_time = -1;
@@ -18,7 +18,8 @@ void ICACHE_RAM_ATTR TimerHandler()
 
 void setup()
 {
-  Serial.begin(9600);
+  //Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial);
   delay(200);
 

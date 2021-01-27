@@ -15,13 +15,14 @@
 #define _TIMERINTERRUPT_LOGLEVEL_ 0
 #include <ESP8266TimerInterrupt.h>
 
-#define SEND_FREQUENCY_HZ 25000
+//#define SEND_FREQUENCY_HZ 25000
+#define SEND_FREQUENCY_HZ 5000
 volatile uint32_t lastMicros = 0;
 
 #define LASER_LIGHT_PIN D1
 #define LASER_TRIGGER_PIN D0
 #define LASER_FIRE_PIN D8
-uint16_t laser_msg = hamming_byte_encoder('E');
+uint16_t laser_msg = hamming_byte_encoder('0');
 boolean laser_trigger_enabled = true;
 LaserTransmitter laser;
 
@@ -41,7 +42,8 @@ void ICACHE_RAM_ATTR TimerHandler()
 void setup()
 {
 
-  Serial.begin(9600);
+  //Serial.begin(9600);
+  Serial.begin(115200);
   pinMode(LASER_TRIGGER_PIN, INPUT);
   pinMode(LASER_FIRE_PIN, OUTPUT);
 
