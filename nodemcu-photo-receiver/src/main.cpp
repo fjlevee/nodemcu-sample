@@ -2,9 +2,9 @@
 #include <HT_hamming_encoder.h>
 #include <ESP8266_Light_modulator.h>
 // Reception Frequency in Hz
-#define RECEIVE_FREQUENCY_HZ 25000
-
-#define PHOTORECEIVER_PIN D0
+//#define RECEIVE_FREQUENCY_HZ 25000
+#define RECEIVE_FREQUENCY_HZ 5000
+#define PHOTORECEIVER_PIN D5
 LaserReceiver pdiode;
 int last_received_code = 0;
 long last_received_time = -1;

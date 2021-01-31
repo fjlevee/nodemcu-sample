@@ -15,8 +15,8 @@
 #define _TIMERINTERRUPT_LOGLEVEL_ 0
 #include <ESP8266TimerInterrupt.h>
 
-//#define SEND_FREQUENCY_HZ 25000
-#define SEND_FREQUENCY_HZ 5000
+#define SEND_FREQUENCY_HZ 25000
+//#define SEND_FREQUENCY_HZ 5000
 volatile uint32_t lastMicros = 0;
 
 #define LASER_LIGHT_PIN D1
@@ -26,6 +26,9 @@ uint16_t laser_msg = hamming_byte_encoder('0');
 boolean laser_trigger_enabled = true;
 LaserTransmitter laser;
 
+// %ax Number of times that laser code is sent when trigger is activated
+int shoot_code_number = 30;
+int code_send_number = 0;
 
 //=======================================================================
 void ICACHE_RAM_ATTR TimerHandler()
@@ -56,22 +59,19 @@ void setup()
 void loop()
 {
   int val = digitalRead(LASER_TRIGGER_PIN); //read the value of the digital interface 3 assigned to val
-  if ((val == LOW) && (laser_trigger_enabled))
+  if ((val == LOW) && (code_send_number < shoot_code_number))
   {
-    digitalWrite(LASER_FIRE_PIN, HIGH);
+    //
     laser_trigger_enabled = false;
     laser.manchester_modulate(laser_msg);
+    digitalWrite(LASER_FIRE_PIN, HIGH);
     delay(10);
-    digitalWrite(LASER_LIGHT_PIN, HIGH);
-    delay(100);
-    digitalWrite(LASER_LIGHT_PIN, LOW);
 
-    Serial.println("Fire\n");
-
-    digitalWrite(LASER_FIRE_PIN, LOW);
+    code_send_number++;
   }
-  else if (val == HIGH)
-  {
-    laser_trigger_enabled = true;
+  else if ((val == HIGH) && (!laser_trigger_enabled))
+    {
+      code_send_number = 0;
+      laser_trigger_enabled = true;
   }
 }
