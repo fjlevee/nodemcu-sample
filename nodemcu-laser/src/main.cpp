@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #include <HT_hamming_encoder.h>
-#include <ESP8266_Light_modulator.h>
+#include <Laser_transmitter.h>
 
 
 #if !defined(ESP8266)
@@ -51,7 +51,7 @@ void setup()
   pinMode(LASER_FIRE_PIN, OUTPUT);
 
   // must be 500+ bits/second and less than laser slew rate
-  laser.begin(LASER_LIGHT_PIN, SEND_FREQUENCY_HZ, TimerHandler);
+  laser.begin(TimerHandler, LASER_LIGHT_PIN, SEND_FREQUENCY_HZ);
   Serial.println(F("Laser Program started"));
 }
 
@@ -59,12 +59,15 @@ void setup()
 void loop()
 {
   int val = digitalRead(LASER_TRIGGER_PIN); //read the value of the digital interface 3 assigned to val
+  if ((val == LOW) && (code_send_number == 0))
+    digitalWrite(LASER_FIRE_PIN, HIGH);
   if ((val == LOW) && (code_send_number < shoot_code_number))
   {
+    Serial.println("FIRE");
     //
     laser_trigger_enabled = false;
     laser.manchester_modulate(laser_msg);
-    digitalWrite(LASER_FIRE_PIN, HIGH);
+    //
     delay(10);
 
     code_send_number++;
@@ -73,5 +76,6 @@ void loop()
     {
       code_send_number = 0;
       laser_trigger_enabled = true;
+      digitalWrite(LASER_FIRE_PIN, LOW);
   }
 }

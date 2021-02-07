@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <HT_hamming_encoder.h>
-#include <ESP8266_Light_modulator.h>
+#include <Laser_receiver.h>
 // Reception Frequency in Hz
 //#define RECEIVE_FREQUENCY_HZ 25000
 #define RECEIVE_FREQUENCY_HZ 5000
@@ -23,7 +23,7 @@ void setup()
   while (!Serial);
   delay(200);
 
-  pdiode.begin(PHOTORECEIVER_PIN, RECEIVE_FREQUENCY_HZ, TimerHandler);
+  pdiode.begin(TimerHandler, PHOTORECEIVER_PIN, RECEIVE_FREQUENCY_HZ);
 
   Serial.print("PHOTORECEIVER_PIN D1: ");
   Serial.println(D1);
@@ -37,7 +37,7 @@ void loop()
   //print and return most recently received byte, if any, only once
   //pdiode.printByte();
   
-  uint8_t received_code = pdiode.getMsgCodeByte();
+  uint8_t received_code = pdiode.get_touch_code_detected();
   if (received_code != 255)
   {
     Serial.print(millis());

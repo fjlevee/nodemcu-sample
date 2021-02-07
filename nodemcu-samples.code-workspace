@@ -26,6 +26,14 @@
 		{
 			"name": "nodemcu-wifi-http-client",
 			"path": "nodemcu-wifi-http-client"
+		},
+		{
+			"name": "nodemcu-rgb-led-blink",
+			"path": "nodemcu-rgb-led-blink"
+		},
+		{
+			"name": "nodemcu-oled-128x64",
+			"path": "nodemcu-oled-128x64"
 		}
 	],
 	"settings": {}
